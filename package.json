@@ -1,0 +1,14 @@
+{
+    "name": "platofmer",
+    "version": "0.0.1",
+    "description": "platformer",
+    "dependencies": {
+        "socket.io": "latest",
+        "node-uuid": "latest",
+        "express": "latest",
+        "path": "latest",
+        "http": "latest",
+        "pngjs": "latest"
+    },
+    "author": "William Ganucheau"
+}
