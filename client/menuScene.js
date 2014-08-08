@@ -11,9 +11,8 @@ function MenuScene (renderer_) {
 // Private functions ----------------------------------------------------------
 
 // Public functions
-MenuScene.prototype.addButton = function (label_, x_, y_, onclick_) {
-	var button = new Button (label_, x_, y_, onclick_);
-	this.m_elements.push (button);
+MenuScene.prototype.addElement = function (element_) {
+	this.m_elements.push (element_);
 };
 
 MenuScene.prototype.handleInput = function (event_) {
@@ -31,15 +30,25 @@ MenuScene.prototype.draw = function () {
 		element.draw (this.m_renderer);
 	}
 };
+/* ELEMENT --------------------------------------------------------------------
+ * A generic element that can be added to a menu scene
+ * ------------------------------------------------------------------------- */
+function Element (x_, y_) {
+	this.m_x = x_;
+	this.m_y = y_;
+}
+
+Element.prototype.handle = function (event_) { /* jshint unused: false */ };
+
 /* BUTTON ---------------------------------------------------------------------
  * Button element that can be added to a menu scene
  * ------------------------------------------------------------------------- */
 function Button (label_, x_, y_, onclick_) {	
+	this.base = Element;
+	this.base (x_, y_);
+	
 	this.WIDTH	= TEX.BUTTON_NORM.w;
 	this.HEIGHT = TEX.BUTTON_NORM.h;
-
-	this.m_x = x_;
-	this.m_y = y_;
 
 	this.m_label = label_;
 	this.m_width = this.WIDTH;
@@ -49,6 +58,8 @@ function Button (label_, x_, y_, onclick_) {
 
 	this.mouseDown = false;
 }
+
+Button.prototype = new Element;
 
 // Private functions ----------------------------------------------------------
 Button.prototype._inBounds = function (x_, y_)
@@ -76,3 +87,18 @@ Button.prototype.draw = function (renderer_) {
 	renderer_.drawText (this.m_label, this.m_x+35, this.m_y+60);
 };
 
+/* LABEL ----------------------------------------------------------------------
+ * Text that can be added to a menu scene
+ * ------------------------------------------------------------------------- */
+function Label (text_, x_, y_) {
+	this.base = Element;
+	this.base (x_, y_);
+
+	this.m_text = text_;
+}
+
+Label.prototype = new Element;
+
+Label.prototype.draw = function (renderer_) {
+	renderer_.drawText (this.m_text, this.m_x, this.m_y);
+};

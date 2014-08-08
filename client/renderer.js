@@ -86,6 +86,8 @@ Renderer.prototype.drawTexture = function (texture_, x_, y_) {
 
 // Draw some text on the canvas
 Renderer.prototype.drawText = function (text_, x_, y_) {
+	this.context.fillStyle = "white";
 	this.context.font = "24pt Arial";
 	this.context.fillText (text_, x_, y_);
+	this.context.fillStyle = "black";
 };

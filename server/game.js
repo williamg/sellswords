@@ -120,45 +120,5 @@ Game.prototype.clientData = function (clientID_, callback_) {
 Game.prototype.handleAction = function (action_) {
 	this.m_engine.pushAction (action_);
 };
-/*
-// Handle user input
-Game.prototype.handleInput = function (input) {
-	var clientID = input.id;
-	var keyCode = input.keyCode;
-	var action; 
 
-	switch (keyCode) {
-	case 87:
-		action = "up";
-		break;
-	case -87:
-		action = "stopUp";
-		break;
-	case 83:
-		action = "down";
-		break;
-	case -83:
-		action = "stopDown";
-		break;
-	case 68:
-		action = "right";
-		break;
-	case -68:
-		action = "stopRight";
-		break;
-	case 65:
-		action = "left";
-		break;
-	case -65:
-		action = "stopLeft";
-		break;
-	default:
-		console.log ("Unsupported keycode");
-		return; 
-	}
-
-	var actionObj = this.engine.createAction (action, clientID);
-	this.engine.queueAction (actionObj);
-};
-*/
 module.exports = Game;

@@ -1,4 +1,4 @@
-/* global Renderer, InputHandler, MenuScene, GameScene, io */
+/* global Renderer, InputHandler, MenuScene, Button, Label, GameScene, io */
 
 (function () {
 
@@ -14,10 +14,11 @@ function Client () {
 	// var m_playerInfo;
 	this.m_renderer = new Renderer ();
 	this.m_inputHandler = new InputHandler (this._handleInput.bind (this));
-	this.m_scene = undefined;
+	this.m_scene = this._createLoadingScreen ();
 	this.m_id = undefined;
 	this.m_gameData = undefined; // Don't like that this is a member
 
+	this.m_scene.draw ();
 	this.m_socket = io.connect ("/");
 	this._bindEvents (this.m_socket);
 }
@@ -71,23 +72,28 @@ Client.prototype._bindEvents = function (socket_) {
 		client.m_scene.setState (state_);
 	});
 };
-
+// Create a loading screen
+Client.prototype._createLoadingScreen = function () {
+	var scene = new MenuScene (this.m_renderer);
+	scene.addElement (new Label ("Loading....", 835, 400));
+	return scene;
+};
 // Create a main menu scene
 Client.prototype._createMainMenu = function () {
 	var scene = new MenuScene (this.m_renderer);
-	scene.addButton ("Join Game", 835, 400, this._requestGame.bind (this));
-	scene.addButton ("Options", 835, 510);
+	scene.addElement (new Button ("Join Game", 835, 400, this._requestGame.bind (this)));
+	scene.addElement (new Button ("Options", 835, 510));
 	return scene;
 };
 
 // Create a ready screen scene
 Client.prototype._createReadyScreen = function () {
 	var scene = new MenuScene (this.m_renderer);
-	scene.addButton ("Ready!", 835, 400, this._ready.bind (this));
+	scene.addElement (new Button ("Ready!", 835, 400, this._ready.bind (this)));
 	return scene;
 };
 
-// Receive user input, translate it into the correct coordiante system, and 
+// Receive user input, translate it into the correct coordinate system, and
 // pass it off to the scene to be handled
 Client.prototype._handleInput = function (event_) {
 	// Make coordinate relative to canvas	
