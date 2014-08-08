@@ -1,4 +1,4 @@
-/* global Engine, TEX */
+/* global Engine, Action, TEX */
 /* GAME SCENE -----------------------------------------------------------------
  * Scene responsible for rendering the game state, telling the server about
  * user input, reciving state updates from the server, and managing the engine.
@@ -15,6 +15,7 @@ function GameScene (renderer_, clientID_, gameData_, state_, sendActionFunc_) {
 	this.m_gameData = gameData_;
 	this.m_curState = state_;
 	this.m_sendAction = sendActionFunc_;
+	this.m_actionIndex = 0;
 	//this.m_engine = new Engine ();
 
 	// Should the engine start here or should it be a separate functions?
@@ -79,39 +80,35 @@ GameScene.prototype._render = function (state_) {
 	}
 };
 
-GameScene.prototype._getAction = function (event_) {
+GameScene.prototype._getAction = function (event_, clientID_) {
 	// TODO: Add actions to shared directory
-	var action;
+	var actionType;
+	var pressed = (event_.type === Event.KEY_DOWN);
 	switch (event_.keyCode) {
 		case 65:
-			action = "left";
+			actionType = pressed ? Action.LEFT : Action.STOP_LEFT;
 			break;
 		case 68:
-			action = "right";
+			actionType = pressed ? Action.RIGHT : Action.STOP_RIGHT;
 			break;
 		case 87:
-			action = "up";
+			actionType = pressed ? Action.UP : Action.STOP_UP;
 			break;
 		case 83:
-			action = "down";
+			actionType = pressed ? Action.DOWN : Action.STOP_DOWN;
 			break;
 		default:
 			console.log ("Unsupported keycode");
 			break;
 	}
 
-	if (event_.type ===  Event.KEY_UP)
-		action = "stop" + action;
-
-	return action;
+	return new Action (clientID_, this.m_actionIndex++, actionType, undefined);
 };
 
 // Public functions -----------------------------------------------------------
 // Add user input to the event queue and send the event to the server
 GameScene.prototype.handleInput = function (event_) {
-	var actionStr = this._getAction (event_);
-	var id = this.m_clientID;
-	var action = {"actionStr": actionStr, "id": id};
+	var action = this._getAction (event_, this.m_clientID);
 	this.m_sendAction (action);
 };
 

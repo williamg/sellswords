@@ -1,6 +1,11 @@
 // Usable as a module both serverside and clientside
 // From http://caolanmcmahon.com/posts/writing_for_node_and_the_browser/
-var ex = function () {
+var ex = function (a_) {
+
+// This lets us require the action code if this is a server-side engine
+if (a_)
+	Action = a_;
+
 /* ENGINE ---------------------------------------------------------------------
  * Updates the state of the game
  * ------------------------------------------------------------------------- */
@@ -13,14 +18,15 @@ function Engine () {
 // Private functions ----------------------------------------------------------
 Engine.prototype._applyActions = function (state_) {
 	for (var a = 0; a < this.m_actionQueue.length; a++) {
-		var id = this.m_actionQueue[a].id;
-		var actionStr = this.m_actionQueue[a].actionStr;
+		var action = this.m_actionQueue[a];
+		var id = action.clientID;
+		var type = action.type;
 		
 		for (var p = 0; p < state_.players.length; p++) {
 			var player = state_.players[p];
 
 			if (player.clientID === id)
-				state_.players[p] = this._applyAction (player, actionStr);
+				state_.players[p] = this._applyAction (player, type);
 		}
 	}
 
@@ -28,22 +34,22 @@ Engine.prototype._applyActions = function (state_) {
 	return state_;
 };
 
-Engine.prototype._applyAction = function (player_, actionStr_) {
-	if (actionStr_ === "left")
+Engine.prototype._applyAction = function (player_, actionType_) {
+	if (actionType_ === Action.LEFT)
 		player_.vel.x = -1;
-	else if (actionStr_ === "stopleft")
+	else if (actionType_ === Action.STOP_LEFT)
 		player_.vel.x = 0;
-	else if (actionStr_ === "up")
+	else if (actionType_ === Action.UP)
 		player_.vel.y = -1;
-	else if (actionStr_ === "stopup")
+	else if (actionType_ === Action.STOP_UP)
 		player_.vel.y = 0;
-	else if (actionStr_ === "right")
+	else if (actionType_ === Action.RIGHT)
 		player_.vel.x = 1;
-	else if (actionStr_ === "stopright")
+	else if (actionType_ === Action.STOP_RIGHT)
 		player_.vel.x = 0;
-	else if (actionStr_ === "down")
+	else if (actionType_ === Action.DOWN)
 		player_.vel.y = 1;
-	else if (actionStr_ === "stopdown")
+	else if (actionType_ === Action.STOP_DOWN)
 		player_.vel.y = 0;
 	
 	return player_;
@@ -169,7 +175,8 @@ return Engine;
 };
 
 if (typeof window === 'undefined') {
-	module.exports = ex ();
+	var Action = require (__dirname + '/../shared/action.js');
+	module.exports = ex (Action);
 } else {
 	window.Engine = ex ();
 }
