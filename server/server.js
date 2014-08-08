@@ -117,6 +117,7 @@ Server.prototype._handleNewGame = function (players_)
 		player.game = game;
 
 		game.clientData (player.id, function (data_) {
+			var player = players_[data_.index];
 			player.socket.emit ("newGame", data_);
 		});
 	}
