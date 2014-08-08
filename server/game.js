@@ -73,8 +73,11 @@ Game.prototype._loadLevelData = function (callback_) {
 Game.prototype._tick = function () {
 	this.m_liveState = this.m_engine.tick (this.m_liveState);
 
-	for (var c = 0; c < this.m_clients.length; c++)
-		this.m_clients[c].socket.emit ("newGameState", this.m_liveState);
+	for (var c = 0; c < this.m_clients.length; c++) {
+		var client = this.m_clients[c];
+		var data = {"state": this.m_liveState, "lastAction": client.lastAction};
+		client.socket.emit ("newGameData", data);
+	}
 };
 
 
@@ -117,8 +120,17 @@ Game.prototype.clientData = function (clientID_, callback_) {
 	});
 };
 
-Game.prototype.handleAction = function (action_) {
-	this.m_engine.pushAction (action_);
+Game.prototype.handleAction = function (commandPacket_) {
+	for (var a = 0; a < commandPacket_.actions.length; a++)
+		this.m_engine.pushAction (commandPacket_.actions[a]);
+
+	// Any action pushed will definitely be accounted for on the next tick
+	for (var c = 0; c < this.m_clients.length; c++)
+		if (this.m_clients[c].id === commandPacket_.clientID)
+		{
+			this.m_clients[c].lastAction = commandPacket_.id;
+			break;
+		}
 };
 
 module.exports = Game;

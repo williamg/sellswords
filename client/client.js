@@ -66,10 +66,10 @@ Client.prototype._bindEvents = function (socket_) {
 										client._sendAction.bind (client));
 	});
 
-	socket_.on ("newGameState", function (state_) {
+	socket_.on ("newGameData", function (data_) {
 		// Assume/hope/pray that the scene is a game scene
-		console.log ("LAG = " + ((new Date ()).getTime () - state_.realTime) + "ms");
-		client.m_scene.setState (state_);
+		console.log ("LAG = " + ((new Date ()).getTime () - data_.state.realTime) + "ms");
+		client.m_scene.updateState (data_);
 	});
 };
 // Create a loading screen

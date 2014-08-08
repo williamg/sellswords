@@ -76,15 +76,9 @@ Engine.prototype.tick = function (currentState_) {
 	if (gs.realTime < gs.simStartTime)
 		return currentState_;
 
-	var simTime = gs.realTime - gs.simStartTime;
-	var unaccounted = simTime - currentState_.simTime;
-	
-	while (unaccounted > this.DT) {
-		gs = this._applyActions (currentState_);
-		gs = this._applyPhysics (gs);
-		unaccounted -= this.DT;
-		gs.simTime += this.DT;
-	}
+	gs = this._applyActions (currentState_);
+	gs = this._applyPhysics (gs);
+	gs.simTime += this.DT;
 
 	return gs;
 };
