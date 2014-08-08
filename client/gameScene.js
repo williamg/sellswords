@@ -22,7 +22,7 @@ function GameScene (renderer_, clientID_, gameData_, state_, sendCommandFunc_) {
 	this.m_engine = new Engine ();
 
 	// Should the engine start here or should it be a separate functions?
-	setInterval (this._tick.bind (this), 100);
+	setInterval (this._tick.bind (this), Engine.DT);
 	//this.m_engine.start ();
 }
 

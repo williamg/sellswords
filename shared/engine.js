@@ -10,10 +10,10 @@ if (a_)
  * Updates the state of the game
  * ------------------------------------------------------------------------- */
 function Engine () {
-	this.DT = 100;
-
 	this.m_actionQueue = [];
 }
+
+Engine.DT = 15;
 
 // Private functions ----------------------------------------------------------
 Engine.prototype._applyActions = function (state_) {
@@ -58,8 +58,8 @@ Engine.prototype._applyAction = function (player_, actionType_) {
 Engine.prototype._applyPhysics = function (state_) {
 	for (var p = 0; p < state_.players.length; p++) {
 		var player = state_.players[p];
-		player.pos.x += player.vel.x * this.DT;
-		player.pos.y += player.vel.y * this.DT;
+		player.pos.x += player.vel.x * Engine.DT;
+		player.pos.y += player.vel.y * Engine.DT;
 		state_.players[p] = player;
 	}
 
@@ -78,7 +78,7 @@ Engine.prototype.tick = function (currentState_) {
 
 	gs = this._applyActions (currentState_);
 	gs = this._applyPhysics (gs);
-	gs.simTime += this.DT;
+	gs.simTime += Engine.DT;
 
 	return gs;
 };

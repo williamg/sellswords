@@ -10,7 +10,7 @@ var PNG		= require ("pngjs").PNG;
  * ------------------------------------------------------------------------- */
 function Game (clients_) {
 
-	this.TICK_FREQ = 100;
+	this.TICK_FREQ = Engine.DT;
 
 	this.m_engine = new Engine ();
 	this.m_clients = clients_;
