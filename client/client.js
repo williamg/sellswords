@@ -96,13 +96,12 @@ Client.prototype._createReadyScreen = function () {
 // Receive user input, translate it into the correct coordinate system, and
 // pass it off to the scene to be handled
 Client.prototype._handleInput = function (event_) {
-	// Make coordinate relative to canvas	
+	// Make coordinate relative to canvas
 	var pt = this.m_renderer.translate (event_.x, event_.y);
 	event_.x = pt.x;
 	event_.y = pt.y;
 
-	if (this.m_scene !== undefined)
-		this.m_scene.handleInput (event_);
+	this.m_scene.handleInput (event_);
 };
 
 // Request a game from ther server
