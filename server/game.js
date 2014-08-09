@@ -15,9 +15,12 @@ function Game (clients_) {
 	this.m_engine = new Engine ();
 	this.m_clients = clients_;
 	this.m_readys = [];
+	this.m_unackedCommands = [];
 
-	for (var i = 0; i < this.m_clients.length; i++)
+	for (var i = 0; i < this.m_clients.length; i++) {
 		this.m_readys.push (false);
+		this.m_unackedCommands.push ([]);
+	}
 
 	this.m_liveState = undefined;
 }
@@ -71,6 +74,18 @@ Game.prototype._loadLevelData = function (callback_) {
 
 // Advance the live state of the game by one tick and send it to clients
 Game.prototype._tick = function () {
+	
+	for (var i = 0; i < this.m_clients.length; i++) {
+		var oldestComm = this.m_unackedCommands[i].splice (0, 1)[0];
+
+		if (oldestComm) {
+			for (var a = 0; a < oldestComm.actions.length; a++)
+				this.m_engine.pushAction (oldestComm.actions[a]);
+			
+			this.m_clients[i].lastAction = oldestComm.id;
+		}
+	}
+	
 	this.m_liveState = this.m_engine.tick (this.m_liveState);
 
 	for (var c = 0; c < this.m_clients.length; c++) {
@@ -121,14 +136,10 @@ Game.prototype.clientData = function (clientID_, callback_) {
 };
 
 Game.prototype.handleAction = function (commandPacket_) {
-	for (var a = 0; a < commandPacket_.actions.length; a++)
-		this.m_engine.pushAction (commandPacket_.actions[a]);
-
-	// Any action pushed will definitely be accounted for on the next tick
 	for (var c = 0; c < this.m_clients.length; c++)
 		if (this.m_clients[c].id === commandPacket_.clientID)
 		{
-			this.m_clients[c].lastAction = commandPacket_.id;
+			this.m_unackedCommands[c].push (commandPacket_);
 			break;
 		}
 };
