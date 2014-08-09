@@ -11,6 +11,7 @@ var PNG		= require ("pngjs").PNG;
 function Game (clients_) {
 
 	this.TICK_FREQ = Engine.DT;
+	this.EMIT_FREQ = 100;
 
 	this.m_engine = new Engine ();
 	this.m_clients = clients_;
@@ -34,6 +35,7 @@ Game.prototype._startGame = function () {
 		this.m_clients[c].socket.emit ("startGame", this.m_liveState);
 
 	setInterval (this._tick.bind (this), this.TICK_FREQ);
+	setInterval (this._emitState.bind (this), this.EMIT_FREQ);
 };
 
 Game.prototype._generateInitialState = function () {
@@ -86,15 +88,15 @@ Game.prototype._tick = function () {
 	}
 	
 	this.m_liveState = this.m_engine.tick (this.m_liveState);
+};
 
+Game.prototype._emitState = function () {
 	for (var c = 0; c < this.m_clients.length; c++) {
 		var client = this.m_clients[c];
 		var data = {"state": this.m_liveState, "lastAction": client.lastAction};
 		client.socket.emit ("newGameData", data);
 	}
 };
-
-
 // Public functions -----------------------------------------------------------
 // Remember that the specified client is ready to play. If that client was
 // the last client (i.e. all other clients are also ready) then start the game.
