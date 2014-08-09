@@ -1,4 +1,4 @@
-/* global Engine, Action, CommandPacket, TEX */
+/* global Engine, Action, Command, TEX */
 /* GAME SCENE -----------------------------------------------------------------
  * Scene responsible for rendering the game state, telling the server about
  * user input, reciving state updates from the server, and managing the engine.
@@ -15,26 +15,27 @@ function GameScene (renderer_, clientID_, gameData_, state_, sendCommandFunc_) {
 	this.m_gameData = gameData_;
 	this.m_curState = state_;
 	this.m_sendCommand = sendCommandFunc_;
-	this.m_commandPacket = new CommandPacket (0, this.m_curState.simTime, this.m_clientID);
-	this.m_commandIndex = 1;
+	this.m_command = new Command (this.m_clientID, 0);
+	
 	this.m_unackedCommands = [];
 	this.m_unackedStart = 0;
 	this.m_engine = new Engine ();
 
 	// Should the engine start here or should it be a separate functions?
 	setInterval (this._tick.bind (this), Engine.DT);
-	//this.m_engine.start ();
 }
 
 // Private functions ----------------------------------------------------------
 GameScene.prototype._tick = function () {
-	this.m_sendCommand (this.m_commandPacket);
-	this.m_unackedCommands.push (this.m_commandPacket);
+	var command = this.m_command.generate ();
+	this.m_command.id++;
+
+	this.m_sendCommand (command);
+	this.m_unackedCommands.push (command);
+	this.m_engine.pushCommand (command);
+
 	this.m_curState = this.m_engine.tick (this.m_curState);
 	this._render (this.m_curState);
-	this.m_commandPacket = new CommandPacket (this.m_commandIndex++,
-											  this.m_curState.simTime,
-											  this.m_clientID);
 };
 
 // Render the game according to the given state
@@ -49,7 +50,7 @@ GameScene.prototype._render = function (state_) {
 	var lh = this.m_gameData.level.height * this.TILE_SIZE;
 	
 	// Determine the visible bounds, in pixels
-	// Assumes that the level is at least m_renderer.WIDTH wide and 
+	// Assumes that the level is at least m_renderer.WIDTH wide and
 	// m_renderer.HEIGHT tall
 	var minx, miny;
 	if (px - (rw / 2) <= 0)
@@ -123,8 +124,7 @@ GameScene.prototype.handleInput = function (event_) {
 	var action = this._getAction (event_, this.m_clientID);
 	
 	if (action) {
-		this.m_commandPacket.pushAction (action);
-		this.m_engine.pushAction (action);
+		this.m_command.applyAction (action);
 	}
 };
 
@@ -145,11 +145,8 @@ GameScene.prototype.updateState = function (data_) {
 		var engine = new Engine ();
 
 		for (var c = 0; c < this.m_unackedCommands.length; c++) {
-			var cp = this.m_unackedCommands[c];
+			engine.pushCommand (this.m_unackedCommands[c]);
 			
-			for (var a = 0; a < cp.actions.length; a++) {
-				engine.pushAction (cp.actions[a]);
-			}
 			clientState = engine.tick (clientState);
 		}
 	}

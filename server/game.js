@@ -79,9 +79,8 @@ Game.prototype._tick = function () {
 		var oldestComm = this.m_unackedCommands[i].splice (0, 1)[0];
 
 		if (oldestComm) {
-			for (var a = 0; a < oldestComm.actions.length; a++)
-				this.m_engine.pushAction (oldestComm.actions[a]);
-			
+			this.m_engine.pushCommand (oldestComm);
+
 			this.m_clients[i].lastAction = oldestComm.id;
 		}
 	}
@@ -135,11 +134,11 @@ Game.prototype.clientData = function (clientID_, callback_) {
 	});
 };
 
-Game.prototype.handleAction = function (commandPacket_) {
+Game.prototype.handleCommand = function (command_) {
 	for (var c = 0; c < this.m_clients.length; c++)
-		if (this.m_clients[c].id === commandPacket_.clientID)
+		if (this.m_clients[c].id === command_.clientID)
 		{
-			this.m_unackedCommands[c].push (commandPacket_);
+			this.m_unackedCommands[c].push (command_);
 			break;
 		}
 };

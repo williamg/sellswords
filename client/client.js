@@ -63,7 +63,7 @@ Client.prototype._bindEvents = function (socket_) {
 		console.log ("STAT: Game started.");
 		client.m_scene = new GameScene (client.m_renderer, client.m_id,
 										client.m_data, state_,
-										client._sendAction.bind (client));
+										client._sendCommand.bind (client));
 	});
 
 	socket_.on ("newGameData", function (data_) {
@@ -115,8 +115,8 @@ Client.prototype._ready = function () {
 	this.m_socket.emit ("readyForGame");
 };
 
-Client.prototype._sendAction = function (action_) {
-	this.m_socket.emit ("newAction", action_);
+Client.prototype._sendCommand = function (command_) {
+	this.m_socket.emit ("newCommand", command_);
 };
 // Public functions -----------------------------------------------------------
 

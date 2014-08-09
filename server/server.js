@@ -96,8 +96,8 @@ Server.prototype._bindClientEvents = function (client_) {
 		client_.game.setReady (client_);
 	});
 
-	client_.socket.on ("newAction", function (action_) {
-		client_.game.handleAction (action_);
+	client_.socket.on ("newCommand", function (command_) {
+		client_.game.handleCommand (command_);
 	});
 };
 
