@@ -2,7 +2,7 @@
  * Maintains the matchmaking queue and groups players together to form games
  * ------------------------------------------------------------------------- */
 function MatchMakingQueue (newGameFunc_) {
-	this.GAME_SIZE = 1;
+	this.GAME_SIZE = 2;
 
 	this.m_queue = [];
 	this.handleNewGame = newGameFunc_;

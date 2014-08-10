@@ -60,7 +60,6 @@ Engine.prototype._applyPhysics = function (state_) {
 // Public functions -----------------------------------------------------------
 // Advance the state of the simulation
 Engine.prototype.tick = function (currentState_) {
-	
 	var gs = currentState_;
 	gs.realTime = (new Date ()).getTime ();
 	gs.simTime = currentState_.simTime;

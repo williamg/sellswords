@@ -1,4 +1,4 @@
-/* global Engine, Action, Command, TEX */
+/* global Engine, Action, Command, GameState, Utility, TEX */
 /* GAME SCENE -----------------------------------------------------------------
  * Scene responsible for rendering the game state, telling the server about
  * user input, reciving state updates from the server, and managing the engine.
@@ -21,6 +21,11 @@ function GameScene (renderer_, clientID_, gameData_, state_, sendCommandFunc_) {
 	this.m_unackedStart = 0;
 	this.m_engine = new Engine ();
 
+	this.m_serverStates = [GameState.fromConfig (state_),
+						   GameState.fromConfig (state_)];
+	var time = (new Date ()).getTime ();
+	this.m_serverTimes = [time, time + 100];
+
 	// Should the engine start here or should it be a separate functions?
 	setInterval (this._tick.bind (this), Engine.DT);
 }
@@ -35,6 +40,31 @@ GameScene.prototype._tick = function () {
 	this.m_engine.pushCommand (command);
 
 	this.m_curState = this.m_engine.tick (this.m_curState);
+
+	// Interpolate everything not controlled by this client:
+	for (var p = 0; p < this.m_curState.players.length; p++) {
+		if (p === this.m_gameData.index)
+			continue;
+
+		// Interpolate everything necessary for rendering. In this case,
+		// position
+		var xStart = this.m_serverStates[1].players[p].pos.x;
+		var yStart = this.m_serverStates[1].players[p].pos.y;
+		var xEnd = this.m_serverStates[0].players[p].pos.x;
+		var yEnd = this.m_serverStates[0].players[p].pos.y;
+
+		var dt = this.m_serverTimes[1] - this.m_serverTimes[0];
+		var s = (new Date ()).getTime () - this.m_serverTimes[1];
+		var strength = s / dt;
+
+		var intx = Utility.interpolate (xStart, xEnd, strength);
+		var inty = Utility.interpolate (yStart, yEnd, strength);
+
+		this.m_curState.players[p].pos.x = intx;
+		this.m_curState.players[p].pos.y = inty;
+
+	}
+
 	this._render (this.m_curState);
 };
 
@@ -89,8 +119,9 @@ GameScene.prototype._render = function (state_) {
 	// Draw players
 	for (var p = 0; p < state_.players.length; p++)
 	{
-		var t = state_.players[p];
-		this.m_renderer.drawTexture (TEX.PLAYER, t.pos.x - minx, t.pos.y - miny);
+		var pos = state_.players[p].pos;
+		
+		this.m_renderer.drawTexture (TEX.PLAYER, pos.x - minx, pos.y - miny);
 	}
 };
 
@@ -137,8 +168,7 @@ GameScene.prototype.updateState = function (data_) {
 		this.m_unackedCommands.splice (0, lastCommand - this.m_unackedStart + 1);
 		this.m_unackedStart = lastCommand + 1;
 	}
-	
-	var clientState = data_.state;
+	var clientState = GameState.fromConfig (data_.state);
 
 	// Need to reapply any unacked commands
 	if (this.m_unackedCommands.length > 0) {
@@ -153,4 +183,16 @@ GameScene.prototype.updateState = function (data_) {
 
 	// Render the new state
 	this.m_curState = clientState;
+	
+	this.m_serverStates.shift ();
+	this.m_serverStates.push(GameState.fromConfig (data_.state));
+
+	this.m_serverTimes.shift ();
+	this.m_serverTimes.push ((new Date ()).getTime ());
+
+	for (var p = 0; p < this.m_curState.players.length; p++) {
+		if (p !== this.m_gameData.index) {
+			this.m_curState.players[p] = this.m_serverStates[0].players[p];
+		}
+	}
 };
