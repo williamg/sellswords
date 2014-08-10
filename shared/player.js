@@ -12,6 +12,21 @@ function Player (clientID_) {
 	this.acc = {"x": 0, "y": 0};
 }
 
+Player.fromConfig = function (config_) {
+	var player = new Player (config_.clientID);
+
+	// Assign the values not the objects so that the values are copied not the
+	// references to the objects
+	player.pos.x = config_.pos.x;
+	player.pos.y = config_.pos.y;
+	player.vel.x = config_.vel.x;
+	player.vel.y = config_.vel.y;
+	player.acc.x = config_.acc.x;
+	player.acc.y = config_.acc.y;
+
+	return player;
+};
+
 return Player;
 };
 
