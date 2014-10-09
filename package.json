@@ -1,0 +1,10 @@
+{
+	"name": "Sellswords",
+	"description": "Browser-based multiplayer rpg platformer",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"express": "4.9.6",
+		"browserify": "6.0.3"
+	}
+}
