@@ -1,5 +1,6 @@
 var express = require("express");
 var path = require("path");
+var Logger = require(__dirname + "/../shared/logger");
 
 function Server(port) {
 	this._express = express();
@@ -15,8 +16,9 @@ function Server(port) {
 }
 
 Server.prototype.start = function () {
+	var s = this;
 	this._server = this._express.listen(this._port, function() {
-		console.log ("Listening on port 3333");
+		Logger.log(Logger.INFO, "Listening on port " + s._port);
 	});
 };
 
