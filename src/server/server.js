@@ -13,6 +13,8 @@ function Server(port) {
 	this._express.get("/", function(req, res) {
 		res.sendFile(server._root + "/public/index.html");
 	});
+	this._express.use("/", express.static(server._root));
+
 }
 
 Server.prototype.start = function() {
